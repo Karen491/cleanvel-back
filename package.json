@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "predeploy": "cd ../cleanvel-front && yarn build",
+    "deploy": "cp -r ../cleanvel-front/build/ public/",
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www"
   },
