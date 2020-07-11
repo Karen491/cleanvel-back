@@ -55,17 +55,18 @@ router.patch("/:id", uploader.single("profile_picture"), (req, res) => {
         .catch((err) => res.status(400).json(err))
 });
 
+
 //Edit user without photo
-// router.patch("/:id", (req, res) => {
-//     const { id } = req.params;
-//     const { ...userValues } = req.body;
-//     const user = { ...userValues };
-//     User.findByIdAndUpdate(id, user, { new: true })
-//         .then((user) => {
-//             res.status(200).json({ user: user });
-//         })
-//         .catch((err) => res.status(400).json(err))
-// });
+router.patch("/:id", (req, res) => {
+    const { id } = req.params;
+    const { ...userValues } = req.body;
+    const user = { ...userValues };
+    User.findByIdAndUpdate(id, user, { new: true })
+        .then((user) => {
+            res.status(200).json({ user: user });
+        })
+        .catch((err) => res.status(400).json(err))
+});
 
 //Delete user
 router.delete("/:id", (req, res) => {
