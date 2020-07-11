@@ -16,13 +16,13 @@ mongoose
   .then((x) =>
     console.log(`Connected to Mongo! Database name: ${x.connections[0].name}`)
   )
-  .catch((err) => console.log("error connecting to Mongo", err));
+  .catch((err) => console.log("Error connecting to Mongo", err));
 
 const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3001"],
+    origin: ["http://localhost:3001", "https://cleanvel.herokuapp.com/"],
     credentials: true,
   })
 );
@@ -33,8 +33,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const usersRouter = require('./routes/auth');
-app.use('api/', usersRouter);
+const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
+app.use('/api/', authRouter);
+app.use('/api/users', usersRouter);
 
 app.use("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));

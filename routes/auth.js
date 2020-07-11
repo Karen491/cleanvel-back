@@ -5,21 +5,6 @@ const jwt = require("jsonwebtoken");
 const uploader = require("../helpers/cloudinary");
 const User = require("../models/User");
 
-//Create a user - Signup process
-router.post("/signup", uploader.single("profile_picture"), (req, res) => {
-  const profile_picture = req.file.path;
-  const { password, ...userValues } = req.body;
-  bcrypt.hash(password, 10).then((hashedPassword) => {
-    const user = { password: hashedPassword, profile_picture, ...userValues };
-    console.log(user);
-    User.create(user)
-      .then(() => {
-        res.status(201).json({ msg: "Usuario creado con éxito" });
-      })
-      .catch((err) => res.status(400).json(err));
-  });
-});
-
 //Login process
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
