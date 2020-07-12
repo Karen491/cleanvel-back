@@ -42,26 +42,10 @@ router.post("/", uploader.single("profile_picture"), (req, res) => {
     });
 });
 
-//Edit user with photo
-router.patch("/:id", uploader.single("profile_picture"), (req, res) => {
-    const { id } = req.params;
-    const profile_picture = req.file.path;
-    const { ...userValues } = req.body;
-    const user = { profile_picture, ...userValues };
-    User.findByIdAndUpdate(id, user, { new: true })
-        .then((user) => {
-            res.status(200).json({ user: user });
-        })
-        .catch((err) => res.status(400).json(err))
-});
-
-
-//Edit user without photo
+//Edit user without updating photo
 router.patch("/:id", (req, res) => {
     const { id } = req.params;
-    const { ...userValues } = req.body;
-    const user = { ...userValues };
-    User.findByIdAndUpdate(id, user, { new: true })
+    User.findByIdAndUpdate(id, req.body, { new: true })
         .then((user) => {
             res.status(200).json({ user: user });
         })
