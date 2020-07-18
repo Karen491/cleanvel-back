@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 mongoose
-  .connect(process.env.DBL, {
+  .connect(process.env.DB, {
     useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,
