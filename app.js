@@ -35,8 +35,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
+const productsRouter = require('./routes/products');
+const storesRouter = require('./routes/stores');
 app.use('/api/', authRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/stores', storesRouter);
 
 app.use("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
