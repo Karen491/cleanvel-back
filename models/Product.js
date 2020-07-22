@@ -20,7 +20,7 @@ const productSchema = new Schema(
         },
         availability: {
             type: String,
-            enum: ["Ciudad Judicial", "Libertad", "Todas las tiendas"],
+            enum: ["ciudad_judicial", "libertad", "both"],
             required: [true, "Es necesario indicar la disponibilidad"],
         },
         minumum: {
