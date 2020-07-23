@@ -4,9 +4,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const uploader = require("../helpers/cloudinary");
 const User = require("../models/User");
+const { veryToken, checkRole } = require("../utils/auth");
 
 //Get all users
-router.get("/", (req, res) => {
+router.get("/", veryToken, checkRole(["Administrador"]), (req, res) => {
     User.find()
         .then((users) => {
             res.status(200).json({
@@ -29,7 +30,7 @@ router.get("/:id", (req, res) => {
 });
 
 //Create user
-router.post("/", uploader.single("profile_picture"), (req, res) => {
+router.post("/", veryToken, checkRole(["Administrador"]), uploader.single("profile_picture"), (req, res) => {
     const profile_picture = req.file.path;
     const { password, ...userValues } = req.body;
     bcrypt.hash(password, 10).then((hashedPassword) => {
@@ -43,7 +44,7 @@ router.post("/", uploader.single("profile_picture"), (req, res) => {
 });
 
 //Edit user without updating photo
-router.patch("/:id", (req, res) => {
+router.patch("/:id", veryToken, checkRole(["Administrador"]), (req, res) => {
     const { id } = req.params;
     User.findByIdAndUpdate(id, req.body, { new: true })
         .then((user) => {
@@ -53,7 +54,7 @@ router.patch("/:id", (req, res) => {
 });
 
 //Delete user
-router.delete("/:id", (req, res) => {
+router.delete("/:id", veryToken, checkRole(["Administrador"]), (req, res) => {
     const { id } = req.params;
     User.findByIdAndRemove(id)
         .then((user) => {
