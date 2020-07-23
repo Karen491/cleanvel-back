@@ -14,11 +14,11 @@ const eventSchema = new Schema(
         },
         action: {
             type: String,
-            enum: ["Compra", "Traspaso", "Venta"],
+            enum: ["purchase", "transfer", "sale"],
             required: [true, "Es necesario indicar la acción"],
         },
-        data: {
-            type: {},
+        value: {
+            type: Number,
             required: [true, "Es necesario indicar el nuevo valor"],
         }
     },

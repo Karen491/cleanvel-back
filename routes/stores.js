@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Store = require("../models/Store");
+const { veryToken, checkRole } = require("../utils/auth");
 
 //Get all stores
-router.get("/", (req, res) => {
+router.get("/", veryToken, checkRole(["Administrador", "Usuario"]), (req, res) => {
     Store.find()
         .then((stores) => {
             res.status(200).json({
@@ -22,7 +23,7 @@ router.post("/", (req, res) => {
         .catch(err => res.status(400).json(err));
 });
 
-//Search for one specific product
+//Search for one specific store
 router.get("/:id", (req, res) => {
     const { id } = req.params;
     Store.findById(id)
@@ -34,8 +35,8 @@ router.get("/:id", (req, res) => {
         .catch((err) => res.status(400).json(err));
 });
 
-//Edit product
-router.patch("/:id", (req, res) => {
+//Edit store
+router.patch("/:id", veryToken, checkRole(["Administrador"]), (req, res) => {
     const { id } = req.params;
     Store.findByIdAndUpdate(id, req.body, { new: true })
         .then((store) => {
@@ -44,7 +45,7 @@ router.patch("/:id", (req, res) => {
         .catch((err) => res.status(400).json(err))
 });
 
-//Delete product
+//Delete store
 router.delete("/:id", (req, res) => {
     const { id } = req.params;
     Store.findByIdAndRemove(id)
