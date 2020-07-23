@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const { veryToken, checkRole } = require("../utils/auth");
 
 //Get all products
 router.get("/", (req, res) => {
@@ -26,12 +27,12 @@ router.get("/:id", (req, res) => {
 });
 
 //Create products (calculating inventory values)
-router.post("/", (req, res) => {
+router.post("/", veryToken, checkRole(["Administrador"]), (req, res) => {
     const { purchase_price, sale_price, quantity } = req.body;
     const profit = (sale_price - purchase_price).toFixed(2);
     const inventory_value = { warehouse: quantity.warehouse * purchase_price, libertad: quantity.libertad * purchase_price, ciudad_judicial: quantity.ciudad_judicial * purchase_price };
-    const total_quantity = (quantity.warehouse + quantity.libertad + quantity.ciudad_judicial);
-    const totals = { total_quantity: total_quantity, inventory_value: (total_quantity * purchase_price).toFixed(2) };
+    const total_quantity = (parseFloat(quantity.warehouse) + parseFloat(quantity.libertad) + parseFloat(quantity.ciudad_judicial));
+    const totals = { total_quantity, inventory_value: parseFloat((total_quantity * purchase_price).toFixed(2)) };
     const product = { ...req.body, profit: profit, inventory_value: inventory_value, totals: totals };
     Product.create(product)
         .then(() => {
@@ -81,13 +82,13 @@ router.patch("/purchase/:id", (req, res) => {
 })
 
 
-//Edit when registering a transfer
+//Edit when registering a transfer and adding a sale
 router.patch("/transfer/:id", (req, res) => {
     const { id } = req.params;
     const { transfer } = req.body;
     Product.findById(id)
         .then((product) => {
-            let { quantity, inventory_value, purchase_price } = product;
+            let { quantity, inventory_value, purchase_price, totals } = product;
             if (transfer.warehouse) {
                 quantity.warehouse = parseFloat(transfer.warehouse) + quantity.warehouse;
             } else { quantity.warehouse = quantity.warehouse }
@@ -98,34 +99,9 @@ router.patch("/transfer/:id", (req, res) => {
                 quantity.ciudad_judicial = parseFloat(transfer.ciudad_judicial) + quantity.ciudad_judicial;
             } else { quantity.ciudad_judicial = quantity.ciudad_judicial }
             inventory_value = { warehouse: quantity.warehouse * purchase_price, libertad: quantity.libertad * purchase_price, ciudad_judicial: quantity.ciudad_judicial * purchase_price }
-            const data = { quantity, inventory_value };
-            Product.findByIdAndUpdate(id, data, { new: true })
-                .then((product) => {
-                    res.status(200).json({ product: product });
-                })
-                .catch((err) => res.status(400).json(err))
-        })
-})
-
-
-//Edit when registering a sale
-router.patch("/sale/:id", (req, res) => {
-    const { id } = req.params;
-    const { transfer } = req.body;
-    Product.findById(id)
-        .then((product) => {
-            let { quantity, inventory_value, purchase_price } = product;
-            if (transfer.warehouse) {
-                quantity.warehouse = parseFloat(transfer.warehouse) + quantity.warehouse;
-            } else { quantity.warehouse = quantity.warehouse }
-            if (transfer.libertad) {
-                quantity.libertad = parseFloat(transfer.libertad) + quantity.libertad;
-            } else { quantity.libertad = quantity.libertad }
-            if (transfer.ciudad_judicial) {
-                quantity.ciudad_judicial = parseFloat(transfer.ciudad_judicial) + quantity.ciudad_judicial;
-            } else { quantity.ciudad_judicial = quantity.ciudad_judicial }
-            inventory_value = { warehouse: quantity.warehouse * purchase_price, libertad: quantity.libertad * purchase_price, ciudad_judicial: quantity.ciudad_judicial * purchase_price }
-            const data = { quantity, inventory_value };
+            totals.total_quantity = quantity.warehouse + quantity.libertad + quantity.ciudad_judicial;
+            totals = { total_quantity: totals.total_quantity, inventory_value: totals.total_quantity * purchase_price }
+            const data = { quantity, inventory_value, totals };
             Product.findByIdAndUpdate(id, data, { new: true })
                 .then((product) => {
                     res.status(200).json({ product: product });
